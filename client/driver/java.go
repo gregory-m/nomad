@@ -11,7 +11,7 @@ import (
 	"syscall"
 	"time"
 
-        "github.com/hashicorp/go-getter"
+	"github.com/hashicorp/go-getter"
 	"github.com/hashicorp/nomad/client/allocdir"
 	"github.com/hashicorp/nomad/client/config"
 	"github.com/hashicorp/nomad/client/executor"
@@ -100,19 +100,18 @@ func (d *JavaDriver) Start(ctx *ExecContext, task *structs.Task) (DriverHandle, 
 		return nil, fmt.Errorf("Could not find task directory for task: %v", d.DriverContext.taskName)
 	}
 
-        destDir := filepath.Join(taskDir, allocdir.TaskLocal)
+	destDir := filepath.Join(taskDir, allocdir.TaskLocal)
 
-        // Create a location to download the binary.
-        jarName := path.Base(source)
-        jarPath := filepath.Join(destDir, jarName)
-        if err := getter.GetFile(jarPath, source); err != nil {
-                return nil, fmt.Errorf("Error downloading source for Java driver: %s", err)
+	// Create a location to download the binary.
+	jarName := path.Base(source)
+	jarPath := filepath.Join(destDir, jarName)
+	if err := getter.GetFile(jarPath, source); err != nil {
+		return nil, fmt.Errorf("Error downloading source for Java driver: %s", err)
 	}
 
 	// Get the environment variables.
 	envVars := TaskEnvironmentVariables(ctx, task)
 
-	args := []string{}
 	// Look for jvm options
 	jvm_options, ok := task.Config["jvm_options"]
 	if ok && jvm_options != "" {
@@ -120,11 +119,8 @@ func (d *JavaDriver) Start(ctx *ExecContext, task *structs.Task) (DriverHandle, 
 		args = append(args, jvm_options)
 	}
 
-	// Build the argument list
-	args = append(args, "-jar", filepath.Join(allocdir.TaskLocal, fName))
-
 	// Build the argument list.
-        args := []string{"-jar", filepath.Join(allocdir.TaskLocal, jarName)}
+	args := []string{"-jar", filepath.Join(allocdir.TaskLocal, jarName)}
 	if argRaw, ok := task.Config["args"]; ok {
 		args = append(args, argRaw)
 	}
