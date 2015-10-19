@@ -19,7 +19,8 @@ As such, it should be used with extreme care and is disabled by default.
 The `raw_exec` driver supports the following configuration in the job spec:
 
 * `command` - The command to execute. Must be provided.
-
+* `artifact_source` – Source location of an executable artifact. Must be accessible
+from the Nomad client
 * `args` - The argument list to the command, space seperated. Optional.
 
 ## Client Requirements
@@ -34,6 +35,9 @@ options = {
     driver.raw_exec.enable = "1"
 }
 ```
+
+You must specify either a `command` or a `artifact_source` to be executed. Any
+`command` is assumed to be present on the running client.
 
 ## Client Attributes
 

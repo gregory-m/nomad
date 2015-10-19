@@ -120,7 +120,7 @@ func TestExecDriver_Start_Wait(t *testing.T) {
 	}
 }
 
-func TestExecDriver_Start_Artifact_Wait(t *testing.T) {
+func TestRawExecDriver_Start_Artifact_Wait(t *testing.T) {
 	ctestutils.ExecCompatible(t)
 	task := &structs.Task{
 		Name: "sleep",

@@ -92,6 +92,50 @@ func TestRawExecDriver_StartOpen_Wait(t *testing.T) {
 	}
 }
 
+func TestRawExecDriver_StartOpen_Artifact_Source_Wait(t *testing.T) {
+	task := &structs.Task{
+		Name: "sleep",
+		Config: map[string]string{
+			"artifact_source": "https://dl.dropboxusercontent.com/u/47675/jar_thing/hi_linux_amd64",
+		},
+	}
+	driverCtx := testDriverContext(task.Name)
+	ctx := testDriverExecContext(task, driverCtx)
+	defer ctx.AllocDir.Destroy()
+
+	d := NewRawExecDriver(driverCtx)
+	handle, err := d.Start(ctx, task)
+	if err != nil {
+		t.Fatalf("err: %v", err)
+	}
+	if handle == nil {
+		t.Fatalf("missing handle")
+	}
+
+	// Attempt to open
+	handle2, err := d.Open(ctx, handle.ID())
+	if err != nil {
+		t.Fatalf("err: %v", err)
+	}
+	if handle2 == nil {
+		t.Fatalf("missing handle")
+	}
+
+	// Task should terminate quickly
+	select {
+	case <-handle2.WaitCh():
+	case <-time.After(2 * time.Second):
+		t.Fatalf("timeout")
+	}
+
+	// Check they are both tracking the same PID.
+	pid1 := handle.(*rawExecHandle).proc.Pid
+	pid2 := handle2.(*rawExecHandle).proc.Pid
+	if pid1 != pid2 {
+		t.Fatalf("tracking incorrect Pid; %v != %v", pid1, pid2)
+	}
+}
+
 func TestRawExecDriver_Start_Wait(t *testing.T) {
 	task := &structs.Task{
 		Name: "sleep",
